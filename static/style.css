@@ -7,3 +7,11 @@
 .jumbotron {
     padding: 0 0 0 15px;
 }
+
+a, a:hover {
+    text-decoration: none;
+}
+
+#search {
+    width: 750px;
+}

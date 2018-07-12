@@ -6,12 +6,14 @@
         <link rel="stylesheet" type="text/css" href="static/style.css">
     </head>
     <body>
-        <div class="jumbotron">
+
+        <a href="{{ url_for('index') }}">
+            <div class="jumbotron">
             <h1 class="display-4">Weather50</h1>
         </div>
-        <div class="container">
-            {% block body %}
-            {% endblock %}
-        </div>
+        </a>
+
+        {% block body %}
+        {% endblock %}
     </body>
 </html>
