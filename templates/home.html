@@ -33,9 +33,6 @@
                     <th scope="col">Zipcode</th>
                     <th scope="col">City</th>
                     <th scope="col">State</th>
-                    <th scope="col">Lat</th>
-                    <th scope="col">Long</th>
-                    <th scope="col">Population</th>
                 </thead>
                 <tbody>
                 {% for location in locations %}
@@ -43,9 +40,7 @@
                         <th scope="row">{{ location.zipcode }}</th>
                         <td>{{ location.city }}</td>
                         <td>{{ location.state }}</td>
-                        <td>{{ location.lat }}</td>
-                        <td>{{ location.long }}</td>
-                        <td>{{ location.population }}</td>
+                        <td><a href="{{ url_for('location', zipcode=location.zipcode) }}" class="btn btn-info" role="button">More Info</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>

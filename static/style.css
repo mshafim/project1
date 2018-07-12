@@ -15,3 +15,7 @@ a, a:hover {
 #search {
     width: 750px;
 }
+
+.center {
+    text-align: center;
+}

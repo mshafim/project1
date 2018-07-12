@@ -1,6 +1,6 @@
-import os, requests, json
+import os, requests, json, decimal
 
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -31,6 +31,8 @@ def index():
 @app.route("/register", methods=["POST"])
 def register():
     """Register an account."""
+    if "username" in session:
+        session.pop("username")
     session["username"] = request.form.get("username")
     password = request.form.get("password")
 
@@ -48,6 +50,9 @@ def register():
 @app.route("/login", methods=["POST"])
 def login():
     """Login into existing account."""
+    if "username" in session:
+        session.pop("username")
+
     session["username"] = request.form.get("username")
     password = request.form.get("password")
 
@@ -67,4 +72,45 @@ def search():
     else:
         locations = db.execute("SELECT * FROM locations WHERE zipcode LIKE :search_request OR city LIKE :search_request", {"search_request": f"%{search_request}%"}).fetchall()
         return render_template("home.html", failed_search=False, search_success=True, locations=locations)
+
+@app.route("/location/<string:zipcode>", methods=["GET", "POST"])
+def location(zipcode):
+    location = db.execute("SELECT city, state, lat, long, population FROM locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
+
+    weather_status = requests.get(f"https://api.darksky.net/forecast/eb25afd02c81632a833a852fa785413c/{location[0][2]},{location[0][3]}").json()
+
+    if session["visits"] == None:
+        session["visits"] = []
+
+    poster = True
+    for visit in session["visits"]:
+        if zipcode in visit and session["username"] in visit:
+            poster = False
+
+    if "username" in session and poster:
+        if request.method == "POST":
+            checkin = request.form.get("checkin")
+            session["visits"].append((session["username"], zipcode, checkin))
+
+    return render_template("location.html", location=location[0], zipcode=zipcode, visits=session["visits"], username=session["username"], weather=weather_status["currently"])
+
+# creation of an API
+@app.route("/api/locations/<string:zipcode>")
+def api(zipcode):
+    """Return details about a single location."""
+    # Make sure location exists.
+    location = db.execute("SELECT * FROM locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
+    if location is None:
+        return jsonify({"error": "Invalid zipcode"}), 422
+
+    # returns info in JSON format
+    return jsonify({
+            "zipcode": zipcode,
+            "city": location[0][2],
+            "state": location[0][3],
+            "lat": str(location[0][4]),
+            "long": str(location[0][5]),
+            "population": location[0][6],
+            "visits": len([visits for visits in session["visits"] if zipcode in visits])
+        })
 

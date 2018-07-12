@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <h2 class="center">Location Info</h2>
+    <table class="table table-striped">
+        <thead>
+            <th scope="col">Zipcode</th>
+            <th scope="col">City</th>
+            <th scope="col">State</th>
+            <th scope="col">Lat</th>
+            <th scope="col">Long</th>
+            <th scope="col">Population</th>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">{{ zipcode }}</th>
+            {% for data in location %}
+                <td>{{ data }}</td>
+            {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 class="center">Weather Info</h2>
+    <table class="table table-striped">
+        <thead>
+            <th scope="col">Summary</th>
+            <th scope="col">Temperature</th>
+            <th scope="col">Dew Point</th>
+            <th scope="col">Humidity</th>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">{{ weather["summary"] }}</th>
+                <td>{{ weather["temperature"] }}</td>
+                <td>{{ weather["dewPoint"] }}</td>
+                <td>{{ weather["humidity"] *100}}%</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <form class="navbar-form navbar-left form-inline" action="{{ url_for('location', zipcode=zipcode) }}" method="post">
+                    <div class="form-group">
+                        <input id="search" type="text" class="form-control" name="checkin" placeholder="Check-In">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Check-In</button>
+                </form>
+            </div>
+        </div>
+        <h3>Visits</h3>
+        <div class="row">
+            <ul>
+            {% for visit in visits %}
+                {% if visit[1] == zipcode %}
+                <li>{{ visit[0]}}: {{ visit[2]}}</li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
